@@ -11,7 +11,14 @@ const app = express();
 
 // ====================== MIDDLEWARES ======================
 app.use(express.json());
-app.use(cors());
+const cors = require('cors');
+
+// Allow requests from your Vercel frontend (or localhost during development)
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true, // Important if you are passing cookies/tokens
+}));
+
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
