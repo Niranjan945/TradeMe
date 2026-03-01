@@ -8,11 +8,10 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-
-// 🚨 PRODUCTION + LOCAL CORS - cleaned up (no placeholder)
+// ✅ PRODUCTION + LOCAL CORS
 const allowedOrigins = [
-  process.env.FRONTEND_URL,                    // Production Vercel
-  'http://localhost:5173',                     // Vite default
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5175',
   'http://127.0.0.1:5173',
@@ -22,27 +21,23 @@ console.log('✅ Allowed CORS origins:', allowedOrigins);
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) {
-      console.log('✅ Request with no origin - allowed');
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       console.log(`✅ CORS allowed for origin: ${origin}`);
       callback(null, true);
     } else {
       console.error(`❌ CORS BLOCKED origin: ${origin}`);
-      console.error('Allowed:', allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false,
   optionsSuccessStatus: 204
 }));
 
-// ❌ REMOVED: app.options('*', cors());  ← this was causing the crash
+// 🔥 This line was causing crash on Express 5 — now safe on 4.x
+app.options('*', cors());
 
 app.use(helmet());
 app.use(morgan('dev'));
