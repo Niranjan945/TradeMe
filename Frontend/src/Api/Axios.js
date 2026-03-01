@@ -1,13 +1,18 @@
 import axios from 'axios';
 
-// 🚨 PRODUCTION FIX: Automatically strip trailing slashes to prevent 404 URL errors
+// 🚀 PRODUCTION: Use environment variable, fallback to localhost
 const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-const cleanApiUrl = rawApiUrl.replace(/\/$/, ''); 
+
+// Strip trailing slashes to prevent 404 errors
+const cleanApiUrl = rawApiUrl.replace(/\/+$/, '');
+
+console.log('🔗 API Base URL:', cleanApiUrl); // ✅ Debug log
 
 const api = axios.create({
   baseURL: cleanApiUrl,
 });
 
+// Request interceptor - Add JWT token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -16,13 +21,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor - Handle 401 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !error.config.url.includes('/auth/login')) {
-      console.warn("Session expired or invalid token. Redirecting...");
+    if (error.response?.status === 401 && !error.config.url.includes('auth/login')) {
+      console.warn('⚠️ Session expired. Redirecting to login...');
       localStorage.removeItem('token');
-      
       if (window.location.pathname !== '/login') {
         window.location.replace('/login');
       }

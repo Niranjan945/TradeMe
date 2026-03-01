@@ -9,26 +9,33 @@ const app = express();
 
 app.use(express.json());
 
-// 🚨 PRODUCTION FIX: Pass origins as an array to prevent string mismatch errors
+// 🚨 PRODUCTION FIX: Dynamic CORS for multiple deployment environments
 const allowedOrigins = [
-  process.env.FRONTEND_URL, 
+  process.env.FRONTEND_URL,          // Production frontend URL from env
+  'https://trade-me.vercel.app',     // ⚠️ REPLACE with your actual Vercel URL
   'http://localhost:5173',
-  'http://localhost:5174'
-].filter(Boolean); // Filters out undefined if env variable is missing
+  'http://localhost:5174',
+  'http://localhost:5175'
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn(`❌ CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true, 
-  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+
 
 app.use(helmet());
 app.use(morgan('dev'));
@@ -75,4 +82,10 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server is running on port ${PORT}`));
+
+// 🚀 PRODUCTION: Export app for serverless (Vercel) AND start server for traditional hosting (Render/Railway)
+if (process.env.NODE_ENV !== 'production' || process.env.HOSTING_PLATFORM === 'traditional') {
+  app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+}
+
+module.exports = app; // ✅ Required for Vercel serverless functions
