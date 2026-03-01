@@ -1,11 +1,13 @@
 import axios from 'axios';
 
+// 🚨 PRODUCTION FIX: Automatically strip trailing slashes to prevent 404 URL errors
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const cleanApiUrl = rawApiUrl.replace(/\/$/, ''); 
+
 const api = axios.create({
-  // This tells Vite: "Use the Vercel URL if deployed, otherwise use localhost"
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+  baseURL: cleanApiUrl,
 });
 
-// Request Interceptor
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -14,16 +16,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response Interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Only logout if it's a 401 AND we aren't already trying to login
     if (error.response?.status === 401 && !error.config.url.includes('/auth/login')) {
       console.warn("Session expired or invalid token. Redirecting...");
       localStorage.removeItem('token');
       
-      // Use window.location.replace to avoid back-button loops
       if (window.location.pathname !== '/login') {
         window.location.replace('/login');
       }

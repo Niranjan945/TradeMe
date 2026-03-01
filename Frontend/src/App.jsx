@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/authContext'; // Fixed casing
+import { AuthProvider } from './context/authContext'; 
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/dashboard'; // Fixed casing
+
+// 🚨 PRODUCTION FIX: Ensure this perfectly matches the actual file name case!
+// If your file is 'Dashboard.jsx', this MUST be 'Dashboard', not 'dashboard'
+import Dashboard from './pages/dashboard'; 
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
