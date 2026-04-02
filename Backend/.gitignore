@@ -1,0 +1,64 @@
+# =========================================
+# Environment Variables & Secrets
+# =========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
+
+# =========================================
+# Logs
+# =========================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================================
+# Dependencies
+# =========================================
+node_modules/
+.pnp
+.pnp.js
+
+# =========================================
+# Local Databases & Storage
+# =========================================
+*.sqlite
+*.sqlite3
+*.db
+/data/
+/uploads/
+/temp/
+
+# =========================================
+# Build Outputs
+# =========================================
+dist/
+build/
+.next/
+out/
+
+# =========================================
+# OS & Editor/IDE Files
+# =========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
