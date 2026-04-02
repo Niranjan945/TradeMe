@@ -1,12 +1,15 @@
 import axios from 'axios';
 
-// 🚀 PRODUCTION: Use environment variable, fallback to localhost
-const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const isDev = import.meta.env.DEV;
+let rawApiUrl = import.meta.env.VITE_API_URL;
 
-// Strip trailing slashes to prevent 404 errors
+if (!rawApiUrl || isDev) {
+  rawApiUrl = 'http://localhost:5000/api/v1';
+}
+
 const cleanApiUrl = rawApiUrl.replace(/\/+$/, '');
 
-console.log('🔗 API Base URL:', cleanApiUrl); // ✅ Debug log
+console.log(`🔗 API Base URL: ${cleanApiUrl} (DEV mode: ${isDev})`);
 
 const api = axios.create({
   baseURL: cleanApiUrl,
@@ -15,19 +18,17 @@ const api = axios.create({
 // Request interceptor - Add JWT token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Response interceptor - Handle 401 errors
+// Response interceptor - Handle 401
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && !error.config.url.includes('auth/login')) {
-      console.warn('⚠️ Session expired. Redirecting to login...');
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       if (window.location.pathname !== '/login') {
         window.location.replace('/login');
       }

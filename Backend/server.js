@@ -36,8 +36,8 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-// 🔥 This line was causing crash on Express 5 — now safe on 4.x
-app.options('*', cors());
+// // 🔥 This line was causing crash on Express 5 — now safe on 4.x
+// app.options('*', cors());
 
 app.use(helmet());
 app.use(morgan('dev'));
@@ -50,11 +50,9 @@ const connectDB = require('./src/config/database');
 connectDB();
 
 const seedAdmin = require('./src/utils/seedAdmin');
-try {
-  seedAdmin();
-} catch (error) {
-  console.error("Seed Admin Error:", error);
-}
+seedAdmin().catch((error) => {
+  console.error("❌ Seed Admin Error:", error.message);
+});
 
 const authRoutes = require('./src/routes/authRoutes');
 const tradeRoutes = require('./src/routes/tradeRoutes');
